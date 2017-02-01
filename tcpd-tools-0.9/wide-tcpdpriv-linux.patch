@@ -1,0 +1,131 @@
+diff -uprN tcpd-tools-0.9/wide-tcpdpriv/tcpdpriv.c tcpd-tools-0.9p/wide-tcpdpriv/tcpdpriv.c
+--- tcpd-tools-0.9/wide-tcpdpriv/tcpdpriv.c	2000-04-18 16:59:19.000000000 +0900
++++ tcpd-tools-0.9p/wide-tcpdpriv/tcpdpriv.c	2017-02-02 02:10:21.357744947 +0900
+@@ -60,25 +60,35 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ 
++#if defined(linux)
++#define __FAVOR_BSD 1
++#endif
++
+ #if	defined(SVR4)
+ #include <sys/statvfs.h>
+ #endif	/* defined(SVR4) */
+ #include <sys/param.h>
+ #include <sys/time.h>
+-#if	!defined(SVR4)
++#if	!defined(SVR4) && !defined(linux)
+ #include <sys/ucred.h>
+ #endif	/* !defined(SVR4) */
+ #include <sys/mount.h>
+ #include <sys/socket.h>
+-#if	defined(sun)
++#if	defined(sun) || defined(linux)
+ #include <sys/vfs.h>
+ #endif	/* defined(sun) */
+ 
++#if defined(linux)
++#define	ARPOP_REVREQUEST 3	/* request protocol address given hardware */
++#define	ARPOP_REVREPLY	4	/* response giving protocol address */
++#define IPPROTO_IPV4 4
++#endif
++
+ #include <net/if.h>
+ 
+ #include <netinet/in.h>
+ #include <netinet/if_ether.h>
+-#if	!defined(SVR4)
++#if	!defined(SVR4) && !defined(linux)
+ #include <sys/mbuf.h>
+ #endif	/* !defined(SVR4) */
+ #include <netinet/in_systm.h>
+@@ -90,7 +100,7 @@
+ #include <arpa/nameser.h>
+ #endif
+ 
+-#if !defined(sun)
++#if !defined(sun) && !defined(linux)
+ #include <net/slcompress.h>
+ #if	!defined(osf1)
+ #include <net/slip.h>
+@@ -633,7 +643,7 @@ rand_start(void)
+ 	 * whereas BSD uses "device on mountpoint".
+ 	 */
+ 
+-    pfd = popen("/sbin/mount", "r");
++    pfd = popen("/bin/mount", "r");
+     if (pfd == NULL) {
+ 	pfd = popen("mount", "r");
+ 	if (pfd == NULL) {
+@@ -2491,10 +2501,23 @@ dlt_hdrlen(int dlt)
+     }
+ }
+ 
++
++static void
++usage(char *cmd)
++{
++    fprintf(stderr,
++	"usage:\n%s [-Opq] [-a [[hh:]mm:]ss] [-A {0|1|2|50|99}] [-c count]"
++	"\n\t\t[-C {0|1|2|3|4|...|32|99}] [-F file] [-i interface]"
++	"\n\t\t[-M {0|10|20|70|80|90|99}] [-{P|T|U} {0|1|99}] [-r file]"
++	"\n\t\t[-s snaplen] [-w outputfile] [expression]\n", cmd);
++    fprintf(stderr, "(one reasonable choice:  %s -P99 -C4 -M20 ...)\n", cmd);
++    exit(1);
++}
++
++
+ static void
+ verify_and_print_args(char *cmd)
+ {
+-    static void usage(char *cmd);
+ 
+     lookup_init(&addr_propagate);
+ 
+@@ -2744,22 +2767,10 @@ cleanup(int signo)
+     exit(0);
+ }
+ 
+-static void
+-usage(char *cmd)
+-{
+-    fprintf(stderr,
+-	"usage:\n%s [-Opq] [-a [[hh:]mm:]ss] [-A {0|1|2|50|99}] [-c count]"
+-	"\n\t\t[-C {0|1|2|3|4|...|32|99}] [-F file] [-i interface]"
+-	"\n\t\t[-M {0|10|20|70|80|90|99}] [-{P|T|U} {0|1|99}] [-r file]"
+-	"\n\t\t[-s snaplen] [-w outputfile] [expression]\n", cmd);
+-    fprintf(stderr, "(one reasonable choice:  %s -P99 -C4 -M20 ...)\n", cmd);
+-    exit(1);
+-}
+-
+ int
+ main(int argc, char *argv[], char *envp[])
+ {
+-    void bpf_dump(FILE *output, struct bpf_program *, int);
++    void tcpd_bpf_dump(FILE *output, struct bpf_program *, int);
+     char *copy_argv(register char **argv);
+     char *read_infile(char *fname);
+     char *rfile, *wfile;
+@@ -2903,7 +2914,7 @@ main(int argc, char *argv[], char *envp[
+ 
+     /* dump? */
+     if (dflag) {
+-	bpf_dump(stderr, &fcode, dflag);
++	tcpd_bpf_dump(stderr, &fcode, dflag);
+ 	exit(0);
+     }
+ 
+diff -uprN tcpd-tools-0.9/wide-tcpdpriv/tcpdutil.c tcpd-tools-0.9p/wide-tcpdpriv/tcpdutil.c
+--- tcpd-tools-0.9/wide-tcpdpriv/tcpdutil.c	2000-04-18 17:08:34.000000000 +0900
++++ tcpd-tools-0.9p/wide-tcpdpriv/tcpdutil.c	2017-02-02 01:57:28.098308445 +0900
+@@ -141,7 +141,7 @@ read_infile(char *fname)
+ 
+ 
+ void
+-bpf_dump(FILE *output, struct bpf_program *p, int option)
++tcpd_bpf_dump(FILE *output, struct bpf_program *p, int option)
+ {
+ 	struct bpf_insn *insn;
+ 	int i;
+

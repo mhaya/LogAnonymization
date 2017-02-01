@@ -1,0 +1,53 @@
+--- tcpdpriv-1.2/tcpdpriv.c	2005-11-01 11:29:46.000000000 +0900
++++ tcpdpriv-1.2p/tcpdpriv.c	2017-02-02 01:39:29.599342011 +0900
+@@ -62,17 +62,21 @@ static const char rcsid[] =
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ 
++#if defined(linux)
++#define __FAVOR_BSD 1
++#endif
++
+ #if	defined(SVR4)
+ #include <sys/statvfs.h>
+ #endif	/* defined(SVR4) */
+ #include <sys/param.h>
+ #include <sys/time.h>
+-#if	!defined(SVR4)
++#if	!defined(SVR4) && !defined(linux)
+ #include <sys/ucred.h>
+ #endif	/* !defined(SVR4) */
+ #include <sys/mount.h>
+ #include <sys/socket.h>
+-#if	defined(sun)
++#if	defined(sun) || defined(linux)
+ #include <sys/vfs.h>
+ #endif	/* defined(sun) */
+ 
+@@ -80,7 +84,7 @@ static const char rcsid[] =
+ 
+ #include <netinet/in.h>
+ #include <netinet/if_ether.h>
+-#if	!defined(SVR4)
++#if	!defined(SVR4) && !defined(linux)
+ #include <sys/mbuf.h>
+ #endif	/* !defined(SVR4) */
+ #include <netinet/in_systm.h>
+@@ -88,7 +92,7 @@ static const char rcsid[] =
+ #include <netinet/tcp.h>
+ #include <netinet/udp.h>
+ 
+-#if (!defined(sun)) && !((defined(__APPLE__) && defined(__MACH__)))
++#if (!defined(sun)) && !defined(linux) && !((defined(__APPLE__) && defined(__MACH__)))
+ #include <net/slcompress.h>
+ #if	!defined(osf1)
+ #include <net/slip.h>
+@@ -479,7 +483,7 @@ rand_start(void)
+ 	 * whereas BSD uses "device on mountpoint".
+ 	 */
+ 
+-    pfd = popen("/sbin/mount", "r");
++    pfd = popen("/bin/mount", "r");
+     if (pfd == NULL) {
+ 	pfd = popen("mount", "r");
+ 	if (pfd == NULL) {
