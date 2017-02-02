@@ -1,4 +1,4 @@
-# tcpdpriv-1.2 linux support patch
+# A patch to build tcpdpriv under Linux
 
 http://ita.ee.lbl.gov/html/contrib/tcpdpriv.html
 
