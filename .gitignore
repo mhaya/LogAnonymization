@@ -1,6 +1,6 @@
 .DS_Store
-hmac/tmp/*
 *~
 .ipynb_checkpoints
 .python-version
 tmp
+__pycache__
