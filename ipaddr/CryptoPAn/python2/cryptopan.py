@@ -115,5 +115,6 @@ if __name__ == '__main__' :
     print "Orig IP(int):",int(ip)
     print "Ano IP:",anonymizedIP   
     print "Ano IP(int):",ret
+    print type(ret)
         
 
