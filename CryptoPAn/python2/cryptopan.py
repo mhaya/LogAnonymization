@@ -74,38 +74,46 @@ if __name__ == '__main__' :
         orig_addr = unicode(orig_addr)
 
     ip=ipaddress.ip_address(orig_addr)
-    anonymizedIP = obj.anonymize(int(ip),4,32)
-    anonymizedIP = ipaddress.IPv4Address(anonymizedIP)
     print "Orig IP:",ip
-    print "Ano IP(2.90.93.17):",anonymizedIP 
+    print "Orig IP(int):",int(ip)
+    ret = obj.anonymize(int(ip),4,32)
+    anonymizedIP = ipaddress.IPv4Address(ret)
+    print "Ano IP:",anonymizedIP
+    print "Ano IP(int):",ret
+
     orig_addr = '192.0.2.2'
     if not isinstance(orig_addr,unicode):
         orig_addr = unicode(orig_addr)
 
     ip=ipaddress.ip_address(orig_addr)
-    anonymizedIP = obj.anonymize(int(ip),4,32)
+    ret = obj.anonymize(int(ip),4,32)
     
-    anonymizedIP = ipaddress.IPv4Address(anonymizedIP)
+    anonymizedIP = ipaddress.IPv4Address(ret)
     print "Orig IP:",ip
-    print "Ano IP(2.90.93.19):",anonymizedIP 
+    print "Orig IP(int):",int(ip)
+    print "Ano IP:",anonymizedIP
+    print "Ano IP(int):",ret
     orig_addr = '2001:db8::1'
     if not isinstance(orig_addr,unicode):
         orig_addr = unicode(orig_addr)
 
     ip=ipaddress.ip_address(orig_addr)
-    anonymizedIP = obj.anonymize(int(ip),6,128)
-    anonymizedIP = ipaddress.IPv6Address(anonymizedIP)
+    ret = obj.anonymize(int(ip),6,128)
+    anonymizedIP = ipaddress.IPv6Address(ret)
     print "Orig IP:",ip
-    print "Ano IP(dd92:2c44:3fc0:ff1e:7ff9:c7f0:8180:7e00):",anonymizedIP 
+    print "Orig IP(int):",int(ip)
+    print "Ano IP:",anonymizedIP 
+    print "Ano IP(int):",ret
     orig_addr = '2001:db8::2'
     if not isinstance(orig_addr,unicode):
         orig_addr = unicode(orig_addr)
 
     ip=ipaddress.ip_address(orig_addr)
-    anonymizedIP = obj.anonymize(int(ip),6,128)
-    anonymizedIP = ipaddress.IPv6Address(anonymizedIP)
+    ret = obj.anonymize(int(ip),6,128)
+    anonymizedIP = ipaddress.IPv6Address(ret)
     print "Orig IP:",ip
-    print "Ano IP(dd92:2c44:3fc0:ff1e:7ff9:c7f0:8180:7e02):",anonymizedIP   
-
+    print "Orig IP(int):",int(ip)
+    print "Ano IP:",anonymizedIP   
+    print "Ano IP(int):",ret
         
 

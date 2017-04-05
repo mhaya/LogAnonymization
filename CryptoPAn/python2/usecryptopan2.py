@@ -1,7 +1,8 @@
+
 import sys
 sys.path.append(".")
 import array
-import cryptopan2
+import cryptopan
 
 argvs = sys.argv
  
@@ -19,4 +20,3 @@ while line:
     line = f.readline() 
     
 f.close()
-
